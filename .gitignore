@@ -1,2 +1,5 @@
 shogsrc22.zip
 .vscode
+.depend
+*.o
+madserv

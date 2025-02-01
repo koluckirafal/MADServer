@@ -1,18 +1,13 @@
 #ifndef _MADSERVER_H
 #define _MADSERVER_H
 
-#include "server_interface.h"
-
 class MADServer
 {
-    ServerInterface* s_pServerMgr;
 private:
-    void * server_dll;
-    CreateServerFn s_fnCreateServer;
-    DeleteServerFn s_fnDeleteServer;
+    class Impl_;
+    Impl_* p_impl_;
 public:
     MADServer();
-    ServerInterface* getServerManager();
     ~MADServer();
 };
 

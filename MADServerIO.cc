@@ -1,6 +1,8 @@
 #include <iostream>
 #include "MADServerIO.h"
 
+//#include "server_interface.h"
+
 DRESULT MADServerIO::ShellMessageFn(char* pInfo)
 {
 	return LT_OK;
