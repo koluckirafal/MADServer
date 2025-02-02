@@ -1,12 +1,14 @@
 RM:=rm -f
 CC?=gcc
 CXX?=g++
-DOCKER?=docker
+CONTAINER_TOOL?=docker
 
-DOCKER_IMAGE:=madserver-gcc2.95
+CONTAINER_IMAGE:=localhost/madserver-gcc2.95
 SRC_DIR:=$(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 BUILD_DIR:=/mnt/build
-IMAGE_EXISTS=$(shell $(DOCKER) images -q $(DOCKER_IMAGE))
+IMAGE_EXISTS=$(shell $(CONTAINER_TOOL) images -q $(CONTAINER_IMAGE))
+USER_ID=$(shell id -u)
+GROUP_ID=$(shell id -g)
 
 CPPFLAGS:=-std=c++98 -Ishogo_src/Misc -Ishogo_src/AppHeaders
 LDFLAGS:=
@@ -29,16 +31,25 @@ depend: .depend
 	$(CXX) $(CPPFLAGS) -MM $^ >> ./.depend;
 
 docker-make: docker-build
-	docker run --rm -v $(SRC_DIR):$(BUILD_DIR) \
-		-w $(BUILD_DIR) $(DOCKER_IMAGE) \
+	$(CONTAINER_TOOL) run --rm --pull never -v $(SRC_DIR):$(BUILD_DIR) \
+		$(if $(filter podman,$(CONTAINER_TOOL)),--userns=keep-id,--user $(USER_ID):$(GROUP_ID)) \
+		-w $(BUILD_DIR) $(CONTAINER_IMAGE) \
 		make madserv CC=gcc-2.95 CXX=g++-2.95
 
 docker-build:
 	@if [ -z "$(IMAGE_EXISTS)" ]; then \
-		echo "Building Docker image $(DOCKER_IMAGE)..."; \
-		docker build -t $(DOCKER_IMAGE) .; \
+		echo "Building $(CONTAINER_TOOL) image $(CONTAINER_IMAGE)..."; \
+		$(CONTAINER_TOOL) build -t $(CONTAINER_IMAGE) .; \
 	else \
-		echo "Docker image $(DOCKER_IMAGE) already exists."; \
+		echo "$(CONTAINER_TOOL) image $(CONTAINER_IMAGE) already exists."; \
+	fi
+
+docker-clean:
+	@if [ -n "$(IMAGE_EXISTS)" ]; then \
+		echo "Removing $(CONTAINER_TOOL) image $(CONTAINER_IMAGE)..."; \
+		$(CONTAINER_TOOL) rmi -f $(CONTAINER_IMAGE); \
+	else \
+		echo "$(CONTAINER_TOOL) image $(CONTAINER_IMAGE) not found."; \
 	fi
 
 clean:
