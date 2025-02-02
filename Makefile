@@ -1,7 +1,7 @@
-CC=gcc-2.95
-CXX=g++-2.95
+CC?=gcc-2.95
+CXX?=g++-2.95
 RM=rm -f
-CPPFLAGS=-Ishogo_src/Misc -Ishogo_src/AppHeaders
+CPPFLAGS=-std=c++98 -Ishogo_src/Misc -Ishogo_src/AppHeaders
 LDFLAGS=
 LDLIBS=-ldl
 

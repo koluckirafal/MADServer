@@ -1,19 +1,20 @@
 #ifndef _MADSERVER_H
 #define _MADSERVER_H
 
+#include <memory>
 #include <string>
 #include <vector>
 
 class MADServer
 {
 private:
-    unsigned long MADServer::ProcessShellMessage(std::string &msg);
-    unsigned long MADServer::ProcessPacket(std::vector<unsigned char> &data, unsigned char src_addr[4], unsigned short src_port);
+    unsigned long ProcessShellMessage(std::string &msg);
+    unsigned long ProcessPacket(std::vector<unsigned char> &data, unsigned char src_addr[4], unsigned short src_port);
     class Impl_;
-    Impl_* p_impl_;
+    std::auto_ptr<Impl_> p_impl_;
 public:
     class Callbacks;
-    MADServer();    // TODO: AppHandler w konstruktorze
+    MADServer();
     ~MADServer();
     /*
     unsigned long RunConsoleString(char *pStr);

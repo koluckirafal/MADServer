@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include <vector>
 #include <string>
 #include <dlfcn.h>
@@ -89,8 +90,6 @@ private:
 public:
     Impl_(MADServer& madserv, ShellMessagePtr smsg, ProcessPacketPtr procpacket)
     {
-        std::cout << "MADServer::Impl_: CONSTRUCTOR START" << std::endl;
-
         // Load server.dll and import server functions
         server_dll = dlopen("./server.dll", RTLD_LAZY);
         if (server_dll == 0) {
@@ -121,14 +120,10 @@ public:
         // Set callbacks
         server_cb = new Callbacks(madserv, smsg, procpacket);
         GetServerManager()->SetAppHandler(server_cb);
-
-        std::cout << "MADServer::Impl_: CONSTRUCTOR END" << std::endl;
     };
 
     ~Impl_()
     {
-        std::cout << "MADServer::Impl_: DESTRUCTOR START" << std::endl;
-
         DeleteServer();
         server_mgr = 0;
 
@@ -140,37 +135,28 @@ public:
         if (refs != 0) {
             std::cout << "MADServer::Impl_: " << refs << " references to server.dll left in memory!" << std::endl;
         }
-
-        std::cout << "MADServer::Impl_: DESTRUCTOR END" << std::endl;
     };
 };
 
 
 MADServer::MADServer()
-{
-    std::cout << "MADServer: CONSTRUCTOR START" << std::endl;
-    p_impl_ = new Impl_(*this, &MADServer::ProcessShellMessage, &MADServer::ProcessPacket);
-    std::cout << "MADServer: CONSTRUCTOR END" << std::endl;
-}
+    : p_impl_(std::auto_ptr<Impl_>(new Impl_(*this, &MADServer::ProcessShellMessage, &MADServer::ProcessPacket))) {}
 
 
-MADServer::~MADServer()
-{
-    std::cout << "MADServer: DESTRUCTOR START" << std::endl;
-    delete p_impl_;
-    std::cout << "MADServer: DESTRUCTOR END" << std::endl;
-}
+MADServer::~MADServer() {}
 
 
 unsigned long MADServer::ProcessShellMessage(std::string &msg)
 {
     // TODO: Implement processing shell messages (GameServDlg.cpp:944)
+    return 0;
 }
 
 
 unsigned long MADServer::ProcessPacket(std::vector<unsigned char> &data, unsigned char src_addr[4], unsigned short src_port)
 {
     // TODO: Implement processing unknown packets for GameSpy support (GameServDlg.cpp:1394)
+    return 0;
 }
 
 // TODO: Wrap all ServerInterface functions in MADServer class
