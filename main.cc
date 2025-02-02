@@ -1,16 +1,10 @@
 #include "MADServer.h"
-#include "MADServerIO.h"
 #include <iostream>
 
 int main(int argc, char *argv[])
 {
     MADServer server;
-    MADServerIO server_io;
-    // TODO: Wrap all ServerInterface functions in MADServer class
-
-    // ServerInterface * server_intf = server.getServerManager();
-
-    // server_intf->SetAppHandler(&server_io);
+    std::cout << "Hello from main.cpp!" << std::endl;
 
     // HCONSOLEVAR hVar = NULL;
     // std::cout << "main: uwaga rakieta!!" << std::endl;

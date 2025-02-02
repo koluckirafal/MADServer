@@ -5,7 +5,7 @@ CPPFLAGS=-Ishogo_src/Misc -Ishogo_src/AppHeaders
 LDFLAGS=
 LDLIBS=-ldl
 
-SRCS=main.cc MADServer.cc MADServerIO.cc
+SRCS=main.cc MADServer.cc
 OBJS=$(subst .cc,.o,$(SRCS))
 
 all: madserv
