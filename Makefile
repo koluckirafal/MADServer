@@ -14,7 +14,7 @@ CPPFLAGS:=-std=c++98 -Ishogo_src/Misc -Ishogo_src/AppHeaders
 LDFLAGS:=
 LDLIBS:=-ldl
 
-SRCS=main.cc MADServer.cc
+SRCS=main.cc MADServer.cc Logger.cc
 OBJS=$(subst .cc,.o,$(SRCS))
 
 .PHONY: all madserv docker-make docker-build depend clean distclean

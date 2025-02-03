@@ -7,12 +7,13 @@
 
 class MADServer
 {
-private:
+  private:
     unsigned long ProcessShellMessage(std::string &msg);
     unsigned long ProcessPacket(std::vector<unsigned char> &data, unsigned char src_addr[4], unsigned short src_port);
     class Impl_;
     std::auto_ptr<Impl_> p_impl_;
-public:
+
+  public:
     class Callbacks;
     MADServer();
     ~MADServer();
@@ -33,7 +34,7 @@ public:
     char GetClientInfo(int index, ClientInfo* pInfo);
     char BootClient(DDWORD dwClientID);
     int GetErrorCode();
-    void GetErrorString(char *pString, int maxLen);	
+    void GetErrorString(char *pString, int maxLen);
     char Update(long flags);
     char InitNetworking(char *pDriver, DDWORD dwFlags);
     char GetServiceList(NetService *&pListHead);
@@ -46,4 +47,4 @@ public:
     */
 };
 
-#endif  // _MADSERVERCALLBACKS
+#endif // _MADSERVERCALLBACKS

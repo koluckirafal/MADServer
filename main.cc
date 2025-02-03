@@ -1,10 +1,12 @@
+#include "Logger.h"
 #include "MADServer.h"
 #include <iostream>
 
 int main(int argc, char *argv[])
 {
+    LOG_INFO << "MADServ says hello!";
     MADServer server;
-    std::cout << "Hello from main.cpp!" << std::endl;
+    LOG_INFO << "Server is ready!";
 
     // HCONSOLEVAR hVar = NULL;
     // std::cout << "main: uwaga rakieta!!" << std::endl;
