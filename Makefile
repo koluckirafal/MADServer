@@ -15,14 +15,24 @@ LDFLAGS:=
 LDLIBS:=-ldl
 
 SRCS=main.cc MADServer.cc Logger.cc
+HDRS=MADServer.h Logger.h
 OBJS=$(subst .cc,.o,$(SRCS))
 
-.PHONY: all madserv docker-make docker-build depend clean distclean
+.PHONY: all lint format docker-make docker-build depend clean distclean
 
 all: docker-make
 
 madserv: $(OBJS)
 	$(CXX) $(LDFLAGS) -o madserv $(OBJS) $(LDLIBS)
+
+compile_commands.json:
+	bear -- make madserv
+
+lint: compile_commands.json
+	clang-tidy $(SRCS)
+
+format:
+	clang-format -style=microsoft -i $(SRCS) $(HDRS)
 
 depend: .depend
 
@@ -56,6 +66,6 @@ clean:
 	$(RM) $(OBJS)
 
 distclean: clean
-	$(RM) *~ .depend
+	$(RM) *~ .depend compile_commands.json
 
 include .depend
