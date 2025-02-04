@@ -4,3 +4,4 @@ shogsrc22.zip
 *.o
 madserv
 build.h
+compile_commands.json
