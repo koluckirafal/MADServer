@@ -3,3 +3,4 @@ shogsrc22.zip
 .depend
 *.o
 madserv
+build.h
