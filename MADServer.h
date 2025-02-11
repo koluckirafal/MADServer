@@ -11,10 +11,11 @@ class MADServer
     unsigned long ProcessShellMessage(std::string &msg);
     unsigned long ProcessPacket(std::vector<unsigned char> &data, unsigned char src_addr[4], unsigned short src_port);
     class Impl_;
-    std::auto_ptr<Impl_> p_impl_;
+    Impl_* p_impl_;
+    class Callbacks_;
+    Callbacks_* server_cb_;
 
   public:
-    class Callbacks;
     MADServer();
     ~MADServer();
     /*

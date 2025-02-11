@@ -25,8 +25,9 @@ all: docker-make
 
 build.h:
 	printf "#ifndef _BUILD_H\n#define _BUILD_H\n" > $@
-	printf "#define BUILD_REVISION \"$(BUILD_REVISION)\"" >> $@
-	printf "\n#endif // _BUILD_H" >> $@
+	printf "#define BUILD_REVISION \"$(BUILD_REVISION)\"\n" >> $@
+	printf "#define LITH_GAME \"shogo\"\n" >> $@
+	printf "#endif // _BUILD_H\n" >> $@
 
 madserv: $(OBJS) $(HDRS)
 	$(CXX) $(LDFLAGS) -o madserv $(OBJS) $(LDLIBS)

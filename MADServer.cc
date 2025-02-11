@@ -23,7 +23,8 @@ DGUID GAMEGUID = {/* 87EEDE80-0ED4-11D2-BA96-006008904776 */
     typedef unsigned long (MADServer::*ProcessPacketPtr)(std::vector<unsigned char> & data, unsigned char src_addr[4], \
                                                          unsigned short src_port)
 
-class MADServer::Callbacks : public ServerAppHandler
+// Server callbacks
+class MADServer::Callbacks_ : public ServerAppHandler
 {
   private:
     MADServer &madserv_ref;
@@ -33,7 +34,7 @@ class MADServer::Callbacks : public ServerAppHandler
     ProcessPacketPtr procpacket_ptr;
 
   public:
-    Callbacks(MADServer &madserv, ShellMessagePtr smsg, ProcessPacketPtr procpacket)
+    Callbacks_(MADServer &madserv, ShellMessagePtr smsg, ProcessPacketPtr procpacket)
         : madserv_ref(madserv), smsg_ptr(smsg), procpacket_ptr(procpacket)
     {
     }
@@ -52,14 +53,12 @@ class MADServer::Callbacks : public ServerAppHandler
     {
         if (pMsg == 0)
             throw 2;
-        // TODO: Replace with logger
         LOG_INFO << "server.dll: " << pMsg;
         return 0;
     }
 
     DRESULT OutOfMemory()
     {
-        // TODO: Replace with logger
         LOG_FATAL << "server.dll: Memory exhausted, exiting immediately!";
         exit(ENOMEM);
 
@@ -79,6 +78,7 @@ class MADServer::Callbacks : public ServerAppHandler
     }
 };
 
+// Implementation - contains platform-specific server.dll interfacing
 class MADServer::Impl_
 {
   private:
@@ -86,19 +86,9 @@ class MADServer::Impl_
     CreateServerFn CreateServer;
     DeleteServerFn DeleteServer;
     ServerInterface *server_mgr;
-    MADServer::Callbacks *server_cb;
-    SHELLMESSAGEPTR;
-    PROCESSPACKETPTR;
-    ServerInterface *GetServerManager()
-    {
-        if (server_mgr == 0)
-            throw 1; // Server not initialized!
-
-        return server_mgr;
-    };
 
   public:
-    Impl_(MADServer &madserv, ShellMessagePtr smsg, ProcessPacketPtr procpacket)
+    Impl_()
     {
         // Load server.dll and import server functions
         server_dll = dlopen("./server.dll", RTLD_LAZY);
@@ -130,19 +120,12 @@ class MADServer::Impl_
             throw 4;
         }
         LOG_DEBUG << "server_mgr at " << server_mgr;
-
-        // Set callbacks
-        server_cb = new Callbacks(madserv, smsg, procpacket);
-        GetServerManager()->SetAppHandler(server_cb);
     };
 
     ~Impl_()
     {
         DeleteServer();
         server_mgr = 0;
-
-        delete server_cb;
-        server_cb = 0;
 
         int refs = 0;
         if (server_dll != 0)
@@ -152,15 +135,34 @@ class MADServer::Impl_
             LOG_DEBUG << refs << " references to server.dll left in memory!";
         }
     };
+
+    ServerInterface *GetServerManager()
+    {
+        if (server_mgr == 0)
+            throw 1; // Server not initialized!
+
+        return server_mgr;
+    };
 };
 
 MADServer::MADServer()
-    : p_impl_(std::auto_ptr<Impl_>(new Impl_(*this, &MADServer::ProcessShellMessage, &MADServer::ProcessPacket)))
 {
+    // Create server implementation
+    p_impl_ = new Impl_();
+
+    // Create callbacks
+    server_cb_ = new Callbacks_(*this, &MADServer::ProcessShellMessage, &MADServer::ProcessPacket);
+
+    // Set callbacks
+    p_impl_->GetServerManager()->SetAppHandler(server_cb_);
 }
 
 MADServer::~MADServer()
 {
+    // Destroy server implementation first,
+    // because server.dll will use callback to announce its departure
+    delete p_impl_;
+    delete server_cb_;
 }
 
 unsigned long MADServer::ProcessShellMessage(std::string &msg)
@@ -179,133 +181,133 @@ unsigned long MADServer::ProcessPacket(std::vector<unsigned char> &data, unsigne
 // TODO: Wrap all ServerInterface functions in MADServer class
 
 /*
-unsigned long MADServer::RunConsoleString(char *pStr)
+unsigned long MADServer::RunConsoleString(std::string string)
 {
-
+    return p_impl_->GetServerManager()->RunConsoleString(string.c_str());
 }
 
 unsigned long MADServer::GetConsoleVar(char *pName, HCONSOLEVAR *hVar, char *pDefaultVal)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 unsigned long MADServer::GetVarValueFloat(HCONSOLEVAR hVar, float *val)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 unsigned long MADServer::GetVarValueString(HCONSOLEVAR hVar, char *pStr, DDWORD maxLen)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 unsigned long MADServer::LoadConfigFile(char *pFilename)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 unsigned long MADServer::SaveConfigFile(char *pFilename)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 unsigned long MADServer::SendToServerShell(char *pInfo)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 char MADServer::AddResources(char **pResources, DDWORD nResources)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 struct FileEntry_t* MADServer::GetFileList(char *pDirName)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 void MADServer::FreeFileList(struct FileEntry_t *pList)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 char MADServer::StartWorld(StartGameRequest *pRequest)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 int	 MADServer::GetNumClients()
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 char MADServer::GetClientName(int index, char *pName, int maxChars)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 char MADServer::GetClientInfo(int index, ClientInfo* pInfo)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 char MADServer::BootClient(DDWORD dwClientID)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 int MADServer::GetErrorCode()
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 void MADServer::GetErrorString(char *pString, int maxLen)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 char MADServer::Update(long flags)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 char MADServer::InitNetworking(char *pDriver, DDWORD dwFlags)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 char MADServer::GetServiceList(NetService *&pListHead)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 char MADServer::FreeServiceList(NetService *pListHead)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 char MADServer::SelectService(HNETSERVICE hNetService)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 char MADServer::UpdateSessionName(const char* sName)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 char MADServer::HostGame(NetHost* pHostInfo)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 char MADServer::GetTcpIpAddress(char* sAddress, DDWORD dwBufferSize, unsigned short &hostPort)
 {
-
+    return p_impl_->GetServerManager()->
 }
 
 unsigned long MADServer::SendTo(const void *pData, DDWORD len, const char *sAddr, DDWORD port)
 {
-
+    return p_impl_->GetServerManager()->
 }
 */
