@@ -18,6 +18,7 @@ class MADServer
   public:
     MADServer();
     ~MADServer();
+    int MainLoop(void);
     /*
     unsigned long RunConsoleString(char *pStr);
     unsigned long GetConsoleVar(char *pName, HCONSOLEVAR *hVar, char *pDefaultVal);

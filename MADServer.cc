@@ -82,54 +82,54 @@ class MADServer::Callbacks_ : public ServerAppHandler
 class MADServer::Impl_
 {
   private:
-    void *server_dll;
-    CreateServerFn CreateServer;
-    DeleteServerFn DeleteServer;
-    ServerInterface *server_mgr;
+    void *server_dll_;
+    CreateServerFn CreateServer_;
+    DeleteServerFn DeleteServer_;
+    ServerInterface *server_mgr_;
 
   public:
     Impl_()
     {
         // Load server.dll and import server functions
-        server_dll = dlopen("./server.dll", RTLD_LAZY);
-        if (server_dll == 0)
+        server_dll_ = dlopen("./server.dll", RTLD_LAZY);
+        if (server_dll_ == 0)
         {
             THROW_DYNLOADEXCEPTION(1);
         }
 
-        LOG_DEBUG << "server.dll at " << server_dll;
+        LOG_DEBUG << "server.dll at " << server_dll_;
 
-        CreateServer = (CreateServerFn)(dlsym(server_dll, "CreateServer"));
-        if (CreateServer == 0)
+        CreateServer_ = (CreateServerFn)(dlsym(server_dll_, "CreateServer"));
+        if (CreateServer_ == 0)
         {
             THROW_DYNLOADEXCEPTION(2);
         }
         int refs = 0;
-        DeleteServer = (DeleteServerFn)(dlsym(server_dll, "DeleteServer"));
-        if (DeleteServer == 0)
+        DeleteServer_ = (DeleteServerFn)(dlsym(server_dll_, "DeleteServer"));
+        if (DeleteServer_ == 0)
         {
             THROW_DYNLOADEXCEPTION(3);
         }
 
         // Create the server instance
 
-        SI_CREATESTATUS status = CreateServer(SI_VERSION, GAMEGUID, &server_mgr);
+        SI_CREATESTATUS status = CreateServer_(SI_VERSION, GAMEGUID, &server_mgr_);
         if (status != 0)
         {
             LOG_ERROR << "Couldn't create server";
             throw 4;
         }
-        LOG_DEBUG << "server_mgr at " << server_mgr;
+        LOG_DEBUG << "server_mgr_ at " << server_mgr_;
     };
 
     ~Impl_()
     {
-        DeleteServer();
-        server_mgr = 0;
+        DeleteServer_();
+        server_mgr_ = 0;
 
         int refs = 0;
-        if (server_dll != 0)
-            refs = dlclose(server_dll);
+        if (server_dll_ != 0)
+            refs = dlclose(server_dll_);
         if (refs != 0)
         {
             LOG_DEBUG << refs << " references to server.dll left in memory!";
@@ -138,10 +138,10 @@ class MADServer::Impl_
 
     ServerInterface *GetServerManager()
     {
-        if (server_mgr == 0)
+        if (server_mgr_ == 0)
             throw 1; // Server not initialized!
 
-        return server_mgr;
+        return server_mgr_;
     };
 };
 
@@ -176,6 +176,11 @@ unsigned long MADServer::ProcessPacket(std::vector<unsigned char> &data, unsigne
 {
     // TODO: Implement processing unknown packets for GameSpy support (GameServDlg.cpp:1394)
     return 0;
+}
+
+int MADServer::MainLoop(void)
+{
+    LOG_INFO << "This is supposed to be a main loop...";
 }
 
 // TODO: Wrap all ServerInterface functions in MADServer class
