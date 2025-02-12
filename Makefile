@@ -15,8 +15,8 @@ CPPFLAGS:=-std=c++98 -I. -Itclap/include -Ishogo_src/Misc -Ishogo_src/AppHeaders
 LDFLAGS:=
 LDLIBS:=-ldl
 
-SRCS=main.cc MADServer.cc Logger.cc
-HDRS=MADServer.h Logger.h build.h
+SRCS=main.cc MADServer.cc Logger.cc Utils.cc
+HDRS=MADServer.h Logger.h consts.h build.h
 OBJS=$(subst .cc,.o,$(SRCS))
 
 .PHONY: all lint format docker-make docker-build depend clean distclean

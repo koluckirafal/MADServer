@@ -6,8 +6,10 @@
 #include <vector>
 
 #include "Logger.h"
-#include "MADServer.h"
+#include "Utils.h"
 #include "server_interface.h"
+#include "MADServer.h"
+#include "consts.h"
 
 DGUID GAMEGUID = {/* 87EEDE80-0ED4-11D2-BA96-006008904776 */
                   0x87eede80, 0xed4, 0x11d2, 0xba, 0x96, 0x0, 0x60, 0x8, 0x90, 0x47, 0x76};
@@ -178,9 +180,114 @@ unsigned long MADServer::ProcessPacket(std::vector<unsigned char> &data, unsigne
     return 0;
 }
 
-int MADServer::MainLoop(void)
+int MADServer::Setup(std::string config_path)
+{
+    // NetStart_DoWizard(g_hInst, &g_ServerInfo, &g_ServerOptions, &g_NetGame, bNoDlgs, configFile);
+    // NetStart.cpp:355
+    /*
+    server_options_->m_bTractorBeam    = TRUE;
+	server_options_->m_bDoubleJump     = TRUE;
+	server_options_->m_bRammingDamage  = TRUE;
+	server_options_->m_fWorldTimeSpeed = -1.0f;
+	server_options_->m_fRunSpeed       = 1.0;
+	server_options_->m_fMissileSpeed   = 1.0;
+	server_options_->m_fRespawnScale   = 1.0;
+	server_options_->m_fHealScale      = 1.0;
+	strcpy(server_options_->m_sWorldNightColor, "0.5 0.5 0.5");
+
+    // NetStart.cpp:369
+    server_name_ = DEFAULTSERVERNAME;
+    */
+
+    // NetStart.cpp:383
+    p_impl_->GetServerManager()->LoadConfigFile((char *)config_path.c_str());
+
+    // NetStart.cpp:401
+    bool net_init = p_impl_->GetServerManager()->InitNetworking(NULL, 0);
+    if (!net_init) {
+        LOG_ERROR << "Couldn't initialize networking";
+        return 1;
+    }
+
+    // NetStart.cpp:411
+}
+
+int MADServer::Loop(void)
 {
     LOG_INFO << "This is supposed to be a main loop...";
+}
+
+void MADServer::SetGameVar(const std::string key, std::string value)
+{
+    std::string command = "\"+" + key + "\" \"" + value + "\"";
+	p_impl_->GetServerManager()->RunConsoleString((char *)command.c_str());
+}
+
+void MADServer::SetGameVar(const std::string key, float value)
+{
+	SetGameVar(key, FloatToString(value));
+}
+
+void MADServer::SetGameVar(const std::string key, int value)
+{
+	SetGameVar(key, IntToString(value));
+}
+
+std::string MADServer::GetGameVar(const std::string key, std::string* init_value)
+{
+	HCONSOLEVAR var_handle;
+    std::string value;
+    char raw_value[MAX_STRING_SIZE+1];
+    memset(raw_value, '\0', MAX_STRING_SIZE);
+
+    if (init_value != NULL) {
+        value = *init_value;
+        strncpy(raw_value, value.c_str(), MAX_STRING_SIZE);
+    }
+
+	if (p_impl_->GetServerManager()->GetConsoleVar((char *)key.c_str(), &var_handle, raw_value) == 0)
+	{
+		if (p_impl_->GetServerManager()->GetVarValueString(var_handle, raw_value, MAX_STRING_SIZE) == 0) {
+            value = raw_value;
+        }
+        else {
+            throw 2;
+        }
+	}
+	else
+	{
+		throw 1;
+	}
+
+    return value;
+}
+
+int MADServer::GetGameVar(const std::string key, int* init_value)
+{
+	HCONSOLEVAR var_handle;
+	std::string value;
+
+    if (init_value != NULL) {
+        value = IntToString(*init_value);
+    }
+
+    value = GetGameVar(key, &value);
+
+	return StringToInt(value);
+}
+
+float MADServer::GetGameVar(const std::string key, float* init_value)
+{
+	HCONSOLEVAR var_handle;
+	std::string value;
+
+    if (init_value != NULL) {
+        value = FloatToString(*init_value);
+    }
+
+    value = GetGameVar(key, &value);
+
+	return StringToFloat(value);
 }
 
 // TODO: Wrap all ServerInterface functions in MADServer class

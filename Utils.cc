@@ -1,0 +1,85 @@
+#include <string>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include "Logger.h"
+#include "build.h"
+
+bool CheckRez(std::string name)
+{
+    struct stat sb;
+    std::string filename = name + ".rez";
+
+    bool rez_exists = 0;
+
+    if (stat(filename.c_str(), &sb) != -1) {
+        if (S_ISREG(sb.st_mode) != 0) {
+            rez_exists = 1;
+        }
+    }
+
+    if (!rez_exists && (stat(name.c_str(), &sb) != -1)) {
+        if (S_ISDIR(sb.st_mode) != 0) {
+            rez_exists = 1;
+        }
+    }
+
+    if (!rez_exists) {
+        LOG_ERROR << "Couldn't find resouce \"" << name << "\"";
+    }
+
+    return rez_exists;
+}
+
+bool FindRezFiles(void)
+{
+    bool all_ok = 1;
+
+    if (all_ok) all_ok = CheckRez(LITH_GAME);
+    if (all_ok) all_ok = CheckRez("sound");
+
+    return all_ok;
+}
+
+int StringToInt(std::string &str)
+{
+    std::stringstream ss(str);
+    int result;
+
+    ss >> result;
+    if (ss.fail()) {
+        LOG_ERROR << "Couldn't convert string \"" << str << "\" to int";
+    }
+
+    return result;
+}
+
+float StringToFloat(std::string &str)
+{
+    std::stringstream ss(str);
+    float result;
+
+    ss >> result;
+    if (ss.fail()) {
+        LOG_ERROR << "Couldn't convert string \"" << str << "\" to int";
+    }
+
+    return result;
+}
+
+std::string IntToString(int &value)
+{
+    std::stringstream ss;
+
+    ss << value;
+
+    return ss.str();
+}
+
+std::string FloatToString(float &value)
+{
+    std::stringstream ss;
+
+    ss << value;
+
+    return ss.str();
+}

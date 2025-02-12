@@ -18,7 +18,14 @@ class MADServer
   public:
     MADServer();
     ~MADServer();
-    int MainLoop(void);
+    int Setup(std::string config_path);
+    int Loop(void);
+    void SetGameVar(const std::string key, std::string value);
+    void SetGameVar(const std::string key, float value);
+    void SetGameVar(const std::string key, int value);
+    std::string GetGameVar(const std::string key, std::string* init_value);
+    int GetGameVar(const std::string key, int* init_value);
+    float GetGameVar(const std::string key, float* init_value);
     /*
     unsigned long RunConsoleString(char *pStr);
     unsigned long GetConsoleVar(char *pName, HCONSOLEVAR *hVar, char *pDefaultVal);
