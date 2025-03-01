@@ -1,7 +1,7 @@
 RM:=rm -f
 CC?=gcc
 CXX?=g++
-CONTAINER_TOOL?=docker
+CONTAINER_TOOL:=$(shell command -v podman >/dev/null 2>&1 && echo podman || echo docker)
 
 BUILD_REVISION?=$(shell git describe --tags --always --dirty 2> /dev/null)
 CONTAINER_IMAGE:=localhost/madserver-gcc2.95
@@ -15,8 +15,8 @@ CPPFLAGS:=-std=c++98 -I. -Itclap/include -Ishogo_src/Misc -Ishogo_src/AppHeaders
 LDFLAGS:=
 LDLIBS:=-ldl
 
-SRCS=main.cc MADServer.cc Logger.cc Utils.cc
-HDRS=MADServer.h Logger.h consts.h build.h
+SRCS=main.cc MADServer.cc Logger.cc Utils.cc GameVariables.cc
+HDRS=MADServer.h Logger.h Utils.h GameVariables.cc consts.h build.h
 OBJS=$(subst .cc,.o,$(SRCS))
 
 .PHONY: all lint format docker-make docker-build depend clean distclean

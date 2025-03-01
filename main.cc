@@ -4,7 +4,9 @@
 
 #include "Logger.h"
 #include "MADServer.h"
+#include "GameVariables.h"
 #include "Utils.h"
+#include "consts.h"
 #include "build.h"
 
 #define DEFAULT_CONFIG_FILE "~/.hyperion/Shogo/ShogoSrv.cfg"
@@ -53,8 +55,61 @@ int main(int argc, char *argv[])
     }
 
     MADServer server;
+    GameVariables game_vars;
 
-    server.Setup(config_path);
+    // START INIT
+
+    // NetStart_DoWizard(g_hInst, &g_ServerInfo, &g_ServerOptions, &g_NetGame, bNoDlgs, configFile);
+    // NetStart.cpp:355
+    
+    game_vars.tractor_beam      = true;
+	game_vars.double_jump       = true;
+	game_vars.ramming_damage    = true;
+	game_vars.world_time_speed  = -1.0f;
+	game_vars.run_speed         = 1.0;
+	game_vars.missile_speed     = 1.0;
+	game_vars.respawn_scale     = 1.0;
+	game_vars.heal_scale        = 1.0;
+	game_vars.world_night_color = "0.5 0.5 0.5";
+
+    // NetStart.cpp:369
+    game_vars.server_name = DEFAULTSERVERNAME;
+
+    LOG_INFO << "Loading config file";
+
+    // NetStart.cpp:383
+    server.LoadConfigFile(config_path);
+
+    LOG_INFO << "Initializing networking";
+
+    // NetStart.cpp:401
+    bool net_init = server.InitNetworking();
+    if (!net_init) {
+        LOG_ERROR << "Couldn't initialize networking";
+        return 1;
+    }
+
+    LOG_INFO << "Loading console variables";
+
+    // NetStart.cpp:413
+    // NetStart_LoadConsoleVars();
+    game_vars.Load(server);
+
+    LOG_DEBUG << "Loading level list";
+
+    // NetStart.cpp:415
+	//LoadLevelStrings();
+    std::vector<std::string> levels = GetLevels(server);
+
+    LOG_DEBUG << "Loading REZ";
+
+    // NetStart.cpp:416
+	//LoadRezStrings();
+
+
+    // END INIT
+
+
     server.Loop();
 
     return 0;

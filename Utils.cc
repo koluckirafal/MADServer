@@ -1,6 +1,8 @@
 #include <string>
+#include <vector>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "MADServer.h"
 #include "Logger.h"
 #include "build.h"
 
@@ -82,4 +84,33 @@ std::string FloatToString(float &value)
     ss << value;
 
     return ss.str();
+}
+
+std::vector<std::string> GetLevels(MADServer& server)
+{
+    int count = 0;
+    std::vector<std::string> levels;
+
+    count = server.GetGameVar("NumLevels", 0);
+
+    for (int i = 0; i < count; i++)
+	{
+		std::string level = server.GetGameVar("Level" + IntToString(i), "");
+
+		if (!level.empty())
+		{
+			levels.push_back(level);
+		}
+	}
+
+    return levels;
+}
+
+void SaveLevels(MADServer& server, std::vector<std::string>& levels)
+{
+    for (int i = 0; i < levels.size(); i++) {
+        server.SetGameVar("Level" + IntToString(i), levels[i]);
+    }
+
+    server.SetGameVar("NumLevels", (int)(levels.size()));
 }

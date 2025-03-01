@@ -5,8 +5,7 @@ CLI frontend for Shogo: Mobile Armor Division dedicated server library. Because 
 # How to compile and run the server
 
 ```
-$ meson setup --cross-file x86-linux-gnu build
-$ meson compile -C build
+$ make
 $ cp ./build/madserv <path to Shogo Linux installation>
 $ cd <path to Shogo Linux installation>
 $ LD_LIBRARY_PATH=. ./madserv

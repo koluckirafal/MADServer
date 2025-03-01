@@ -18,21 +18,21 @@ class MADServer
   public:
     MADServer();
     ~MADServer();
-    int Setup(std::string config_path);
     int Loop(void);
     void SetGameVar(const std::string key, std::string value);
     void SetGameVar(const std::string key, float value);
     void SetGameVar(const std::string key, int value);
-    std::string GetGameVar(const std::string key, std::string* init_value);
-    int GetGameVar(const std::string key, int* init_value);
-    float GetGameVar(const std::string key, float* init_value);
+    std::string GetGameVar(const std::string key, std::string init_value);
+    int GetGameVar(const std::string key, int init_value);
+    float GetGameVar(const std::string key, float init_value);
+    unsigned long LoadConfigFile(std::string config_path);
+    unsigned long SaveConfigFile(std::string config_path);
+    char InitNetworking(void);
     /*
-    unsigned long RunConsoleString(char *pStr);
-    unsigned long GetConsoleVar(char *pName, HCONSOLEVAR *hVar, char *pDefaultVal);
-    unsigned long GetVarValueFloat(HCONSOLEVAR hVar, float *val);
-    unsigned long GetVarValueString(HCONSOLEVAR hVar, char *pStr, DDWORD maxLen);
-    unsigned long LoadConfigFile(char *pFilename);
-    unsigned long SaveConfigFile(char *pFilename);
+    --unsigned long RunConsoleString(char *pStr);   // internal?
+    --unsigned long GetConsoleVar(char *pName, HCONSOLEVAR *hVar, char *pDefaultVal);
+    --unsigned long GetVarValueFloat(HCONSOLEVAR hVar, float *val); // unused?
+    --unsigned long GetVarValueString(HCONSOLEVAR hVar, char *pStr, DDWORD maxLen);
     unsigned long SendToServerShell(char *pInfo);
     char AddResources(char **pResources, DDWORD nResources);
     struct FileEntry_t* GetFileList(char *pDirName);
@@ -45,7 +45,6 @@ class MADServer
     int GetErrorCode();
     void GetErrorString(char *pString, int maxLen);
     char Update(long flags);
-    char InitNetworking(char *pDriver, DDWORD dwFlags);
     char GetServiceList(NetService *&pListHead);
     char FreeServiceList(NetService *pListHead);
     char SelectService(HNETSERVICE hNetService);
@@ -56,4 +55,4 @@ class MADServer
     */
 };
 
-#endif // _MADSERVERCALLBACKS
+#endif // _MADSERVER_H

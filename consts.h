@@ -1,7 +1,7 @@
 #ifndef _CONSTS_H
 #define _CONSTS_H
 
-#define MAX_STRING_SIZE 32
+#define MAX_STRING_SIZE 128
 
 #define DEFAULTSERVERNAME   "Shogo Server"
 #define SPYGAMENAME         "shogo"
