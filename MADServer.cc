@@ -214,10 +214,10 @@ std::string MADServer::GetGameVar(const std::string key, std::string init_value)
     memset(raw_value, '\0', MAX_STRING_SIZE);
     strncpy(raw_value, value.c_str(), MAX_STRING_SIZE - 1);
 
-    LOG_DEBUG << "server.dll::GetConsoleVar(\"" << key << "\", \"" << value << "\");";
+    // LOG_DEBUG << "server.dll::GetConsoleVar(\"" << key << "\", \"" << value << "\");";
     if (p_impl_->GetServerManager()->GetConsoleVar((char *)raw_key, &var_handle, raw_value) == 0)
     {
-        LOG_DEBUG << "server.dll::GetVarValueString(" << value << ", " << STRINGIZE(MAX_STRING_SIZE) << ");";
+        // LOG_DEBUG << "server.dll::GetVarValueString(" << value << ", " << STRINGIZE(MAX_STRING_SIZE) << ");";
         if (p_impl_->GetServerManager()->GetVarValueString(var_handle, raw_value, MAX_STRING_SIZE) == 0)
         {
             value = raw_value;
