@@ -3,14 +3,16 @@
 
 #include "MADServer.h"
 
-enum GameType {
+enum GameType
+{
     kSingle = 0,
     kDeathmatch = 1,
     kCaptureTheFlag = 2,
     kCooperative = 3
 };
 
-enum EndType {
+enum EndType
+{
     kFrags = 1,
     kTime = 2,
     kFragsAndTime = 3,
@@ -20,13 +22,13 @@ enum EndType {
 class GameVariables
 {
   public:
-    std::string server_name;    // 256
-    std::string service_name;   // 256
+    std::string server_name;  // 256
+    std::string service_name; // 256
     enum GameType game_type;
     enum EndType end_type;
     int end_frags;
     int end_time;
-    int net_service;    // hardcoded to ???
+    int net_service; // hardcoded to ???
     int max_players;
     bool update_info;
     bool server_reg;
@@ -42,8 +44,11 @@ class GameVariables
     float world_time_speed;
     float respawn_scale;
     float heal_scale;
-    void Load(MADServer& server);
-    void Save(MADServer& server);
+    GameVariables()
+        : game_type(kDeathmatch), end_type(kFrags), end_frags(25), end_time(10), net_service(0), max_players(16),
+          port(0), update_info(true), server_reg(true), use_gamespy(true), dash_go_info(false){};
+    void Load(MADServer &server);
+    void Save(MADServer &server);
 };
 
 #endif // _GAMEVARIABLES_H

@@ -1,10 +1,10 @@
-#include <string>
-#include <vector>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include "MADServer.h"
 #include "Logger.h"
+#include "MADServer.h"
 #include "build.h"
+#include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <vector>
 
 bool CheckRez(std::string name)
 {
@@ -13,19 +13,24 @@ bool CheckRez(std::string name)
 
     bool rez_exists = 0;
 
-    if (stat(filename.c_str(), &sb) != -1) {
-        if (S_ISREG(sb.st_mode) != 0) {
+    if (stat(filename.c_str(), &sb) != -1)
+    {
+        if (S_ISREG(sb.st_mode) != 0)
+        {
             rez_exists = 1;
         }
     }
 
-    if (!rez_exists && (stat(name.c_str(), &sb) != -1)) {
-        if (S_ISDIR(sb.st_mode) != 0) {
+    if (!rez_exists && (stat(name.c_str(), &sb) != -1))
+    {
+        if (S_ISDIR(sb.st_mode) != 0)
+        {
             rez_exists = 1;
         }
     }
 
-    if (!rez_exists) {
+    if (!rez_exists)
+    {
         LOG_ERROR << "Couldn't find resouce \"" << name << "\"";
     }
 
@@ -36,8 +41,10 @@ bool FindRezFiles(void)
 {
     bool all_ok = 1;
 
-    if (all_ok) all_ok = CheckRez(LITH_GAME);
-    if (all_ok) all_ok = CheckRez("sound");
+    if (all_ok)
+        all_ok = CheckRez(LITH_GAME);
+    if (all_ok)
+        all_ok = CheckRez("sound");
 
     return all_ok;
 }
@@ -48,7 +55,8 @@ int StringToInt(std::string &str)
     int result;
 
     ss >> result;
-    if (ss.fail()) {
+    if (ss.fail())
+    {
         LOG_ERROR << "Couldn't convert string \"" << str << "\" to int";
     }
 
@@ -61,7 +69,8 @@ float StringToFloat(std::string &str)
     float result;
 
     ss >> result;
-    if (ss.fail()) {
+    if (ss.fail())
+    {
         LOG_ERROR << "Couldn't convert string \"" << str << "\" to int";
     }
 
@@ -86,7 +95,7 @@ std::string FloatToString(float &value)
     return ss.str();
 }
 
-std::vector<std::string> GetLevels(MADServer& server)
+std::vector<std::string> GetLevels(MADServer &server)
 {
     int count = 0;
     std::vector<std::string> levels;
@@ -94,21 +103,22 @@ std::vector<std::string> GetLevels(MADServer& server)
     count = server.GetGameVar("NumLevels", 0);
 
     for (int i = 0; i < count; i++)
-	{
-		std::string level = server.GetGameVar("Level" + IntToString(i), "");
+    {
+        std::string level = server.GetGameVar("Level" + IntToString(i), "");
 
-		if (!level.empty())
-		{
-			levels.push_back(level);
-		}
-	}
+        if (!level.empty())
+        {
+            levels.push_back(level);
+        }
+    }
 
     return levels;
 }
 
-void SaveLevels(MADServer& server, std::vector<std::string>& levels)
+void SaveLevels(MADServer &server, std::vector<std::string> &levels)
 {
-    for (int i = 0; i < levels.size(); i++) {
+    for (int i = 0; i < levels.size(); i++)
+    {
         server.SetGameVar("Level" + IntToString(i), levels[i]);
     }
 

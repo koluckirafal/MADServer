@@ -8,15 +8,19 @@ CONTAINER_IMAGE:=localhost/madserver-gcc2.95
 SRC_DIR:=$(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 BUILD_DIR:=/mnt/build
 IMAGE_EXISTS=$(shell $(CONTAINER_TOOL) images -q $(CONTAINER_IMAGE))
+
+DATA_DIR ?= ~/shogo
+DATA_MOUNT=/mnt/shogo
+
 USER_ID=$(shell id -u)
 GROUP_ID=$(shell id -g)
 
-CPPFLAGS:=-std=c++98 -I. -Itclap/include -Ishogo_src/Misc -Ishogo_src/AppHeaders
-LDFLAGS:=
-LDLIBS:=-ldl
+CPPFLAGS:=-std=c++98 -I. -Itclap/include -Ishogo_src/Misc -Ishogo_src/AppHeaders -g -pthread
+LDFLAGS:=-pthread -g
+LDLIBS:=-ldl -lpthread
 
 SRCS=main.cc MADServer.cc Logger.cc Utils.cc GameVariables.cc
-HDRS=MADServer.h Logger.h Utils.h GameVariables.cc consts.h build.h
+HDRS=MADServer.h Logger.h Utils.h GameVariables.h consts.h build.h
 OBJS=$(subst .cc,.o,$(SRCS))
 
 .PHONY: all lint format docker-make docker-build depend clean distclean
@@ -60,6 +64,14 @@ docker-build:
 	else \
 		echo "$(CONTAINER_TOOL) image $(CONTAINER_IMAGE) already exists."; \
 	fi
+
+docker-gdb: docker-build
+	$(CONTAINER_TOOL) run --rm -it \
+		-v $(SRC_DIR):$(BUILD_DIR) -v $(DATA_DIR):$(DATA_MOUNT) -w $(DATA_MOUNT) \
+		$(if $(filter podman,$(CONTAINER_TOOL)),--userns=keep-id,--user $(USER_ID):$(GROUP_ID)) \
+		--cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
+		-e LD_LIBRARY_PATH=$(DATA_MOUNT) \
+		$(CONTAINER_IMAGE) gdb --args $(BUILD_DIR)/madserv
 
 docker-clean:
 	@if [ -n "$(IMAGE_EXISTS)" ]; then \

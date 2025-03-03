@@ -2,12 +2,12 @@
 #include <iostream>
 #include <unistd.h>
 
+#include "GameVariables.h"
 #include "Logger.h"
 #include "MADServer.h"
-#include "GameVariables.h"
 #include "Utils.h"
-#include "consts.h"
 #include "build.h"
+#include "consts.h"
 
 #define DEFAULT_CONFIG_FILE "~/.hyperion/Shogo/ShogoSrv.cfg"
 
@@ -50,7 +50,8 @@ int main(int argc, char *argv[])
     if (only_print_version)
         return 0;
 
-    if (!FindRezFiles()) {
+    if (!FindRezFiles())
+    {
         return 1;
     }
 
@@ -61,16 +62,16 @@ int main(int argc, char *argv[])
 
     // NetStart_DoWizard(g_hInst, &g_ServerInfo, &g_ServerOptions, &g_NetGame, bNoDlgs, configFile);
     // NetStart.cpp:355
-    
-    game_vars.tractor_beam      = true;
-	game_vars.double_jump       = true;
-	game_vars.ramming_damage    = true;
-	game_vars.world_time_speed  = -1.0f;
-	game_vars.run_speed         = 1.0;
-	game_vars.missile_speed     = 1.0;
-	game_vars.respawn_scale     = 1.0;
-	game_vars.heal_scale        = 1.0;
-	game_vars.world_night_color = "0.5 0.5 0.5";
+
+    game_vars.tractor_beam = true;
+    game_vars.double_jump = true;
+    game_vars.ramming_damage = true;
+    game_vars.world_time_speed = -1.0f;
+    game_vars.run_speed = 1.0;
+    game_vars.missile_speed = 1.0;
+    game_vars.respawn_scale = 1.0;
+    game_vars.heal_scale = 1.0;
+    game_vars.world_night_color = "0.5 0.5 0.5";
 
     // NetStart.cpp:369
     game_vars.server_name = DEFAULTSERVERNAME;
@@ -84,7 +85,8 @@ int main(int argc, char *argv[])
 
     // NetStart.cpp:401
     bool net_init = server.InitNetworking();
-    if (!net_init) {
+    if (!net_init)
+    {
         LOG_ERROR << "Couldn't initialize networking";
         return 1;
     }
@@ -98,17 +100,15 @@ int main(int argc, char *argv[])
     LOG_DEBUG << "Loading level list";
 
     // NetStart.cpp:415
-	//LoadLevelStrings();
+    // LoadLevelStrings();
     std::vector<std::string> levels = GetLevels(server);
 
     LOG_DEBUG << "Loading REZ";
 
     // NetStart.cpp:416
-	//LoadRezStrings();
-
+    // LoadRezStrings();
 
     // END INIT
-
 
     server.Loop();
 

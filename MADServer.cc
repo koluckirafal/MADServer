@@ -6,10 +6,10 @@
 #include <vector>
 
 #include "Logger.h"
-#include "Utils.h"
-#include "server_interface.h"
 #include "MADServer.h"
+#include "Utils.h"
 #include "consts.h"
+#include "server_interface.h"
 
 DGUID GAMEGUID = {/* 87EEDE80-0ED4-11D2-BA96-006008904776 */
                   0x87eede80, 0xed4, 0x11d2, 0xba, 0x96, 0x0, 0x60, 0x8, 0x90, 0x47, 0x76};
@@ -183,6 +183,7 @@ unsigned long MADServer::ProcessPacket(std::vector<unsigned char> &data, unsigne
 int MADServer::Loop(void)
 {
     LOG_INFO << "This is supposed to be a main loop...";
+    return 0;
 }
 
 void MADServer::SetGameVar(const std::string key, std::string value)
@@ -205,26 +206,30 @@ std::string MADServer::GetGameVar(const std::string key, std::string init_value)
 {
     HCONSOLEVAR var_handle;
     std::string value;
-    char raw_value[MAX_STRING_SIZE+1];
-    memset(raw_value, '\0', MAX_STRING_SIZE);
 
     value = init_value;
-    strncpy(raw_value, value.c_str(), MAX_STRING_SIZE-1);
 
-    LOG_DEBUG << "server.dll::GetConsoleVar()";
-    if (p_impl_->GetServerManager()->GetConsoleVar((char *)key.c_str(), &var_handle, raw_value) == 0)
+    const char *raw_key = key.c_str();
+    char raw_value[MAX_STRING_SIZE + 1];
+    memset(raw_value, '\0', MAX_STRING_SIZE);
+    strncpy(raw_value, value.c_str(), MAX_STRING_SIZE - 1);
+
+    LOG_DEBUG << "server.dll::GetConsoleVar(\"" << key << "\", \"" << value << "\");";
+    if (p_impl_->GetServerManager()->GetConsoleVar((char *)raw_key, &var_handle, raw_value) == 0)
     {
-        LOG_DEBUG << "server.dll::GetVarValueString()";
-        if (p_impl_->GetServerManager()->GetVarValueString(var_handle, raw_value, MAX_STRING_SIZE) == 0) {
+        LOG_DEBUG << "server.dll::GetVarValueString(" << value << ", " << STRINGIZE(MAX_STRING_SIZE) << ");";
+        if (p_impl_->GetServerManager()->GetVarValueString(var_handle, raw_value, MAX_STRING_SIZE) == 0)
+        {
             value = raw_value;
         }
-        else {
-            throw 2;
+        else
+        {
+            LOG_DEBUG << "Variable exists, but couldn't get value?";
         }
     }
     else
     {
-        throw 1;
+        SetGameVar(key, init_value);
     }
 
     return value;
