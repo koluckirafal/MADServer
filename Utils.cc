@@ -124,3 +124,33 @@ void SaveLevels(MADServer &server, std::vector<std::string> &levels)
 
     server.SetGameVar("NumLevels", (int)(levels.size()));
 }
+
+std::vector<std::string> GetRezFiles(MADServer &server)
+{
+    int count = 0;
+    std::vector<std::string> rez_files;
+
+    count = server.GetGameVar("NumRezFiles", 0);
+
+    for (int i = 0; i < count; i++)
+    {
+        std::string rez_file = server.GetGameVar("RezFile" + IntToString(i), "");
+
+        if (!rez_file.empty())
+        {
+            rez_files.push_back(rez_file);
+        }
+    }
+
+    return rez_files;
+}
+
+void SaveRezList(MADServer &server, std::vector<std::string> &rez_files)
+{
+    for (int i = 0; i < rez_files.size(); i++)
+    {
+        server.SetGameVar("RezFile" + IntToString(i), rez_files[i]);
+    }
+
+    server.SetGameVar("NumRezFiles", (int)(rez_files.size()));
+}

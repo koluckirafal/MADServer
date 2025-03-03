@@ -229,9 +229,10 @@ std::string MADServer::GetGameVar(const std::string key, std::string init_value)
     }
     else
     {
-        SetGameVar(key, init_value);
+        SetGameVar(key, value);
     }
 
+    LOG_DEBUG << key << " = " << value;
     return value;
 }
 

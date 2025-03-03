@@ -18,5 +18,7 @@ std::string IntToString(int &value);
 std::string FloatToString(float &value);
 std::vector<std::string> GetLevels(MADServer &server);
 void SaveLevels(MADServer &server, std::vector<std::string> levels);
+std::vector<std::string> GetRezFiles(MADServer &server);
+void SaveRezFiles(MADServer &server, std::vector<std::string> rez_files);
 
 #endif // _UTILS_H

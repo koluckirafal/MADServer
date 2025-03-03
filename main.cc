@@ -107,6 +107,8 @@ int main(int argc, char *argv[])
 
     // NetStart.cpp:416
     // LoadRezStrings();
+    std::vector<std::string> rez_files = GetRezFiles(server);
+
 
     // END INIT
 
