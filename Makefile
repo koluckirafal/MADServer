@@ -15,9 +15,12 @@ DATA_MOUNT=/mnt/shogo
 USER_ID=$(shell id -u)
 GROUP_ID=$(shell id -g)
 
-CPPFLAGS:=-std=c++98 -I. -Itclap/include -Ishogo_src/Misc -Ishogo_src/AppHeaders -g -pthread
-LDFLAGS:=-pthread -g
-LDLIBS:=-ldl -lpthread
+CPPFLAGS:=-std=c++98 -I. -Ishogo_src/Misc -Ishogo_src/AppHeaders -g \
+	-Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough \
+	-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 -D_GLIBCXX_ASSERTIONS \
+	-fno-strict-aliasing
+LDFLAGS:=-g -Wl,-z,nodlopen -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -Wl,--as-needed
+LDLIBS:=-ldl
 
 SRCS=main.cc MADServer.cc Logger.cc Utils.cc GameVariables.cc
 HDRS=MADServer.h Logger.h Utils.h GameVariables.h consts.h build.h
@@ -48,8 +51,8 @@ format:
 depend: .depend
 
 .depend: $(SRCS) $(HDRS)
-	$(RM) ./.depend
-	$(CXX) $(CPPFLAGS) -MM $^ >> ./.depend;
+	rm -f $@
+	$(CXX) $(CPPFLAGS) -MM $^ > $@;
 
 docker-make: docker-build
 	$(CONTAINER_TOOL) run --rm --pull never -v $(SRC_DIR):$(BUILD_DIR) \
@@ -82,9 +85,10 @@ docker-clean:
 	fi
 
 clean:
-	$(RM) $(OBJS) build.h
+	$(RM) $(OBJS) madserv build.h
 
 distclean: clean
 	$(RM) *~ .depend compile_commands.json
+	$(RM) -r .cache
 
 include .depend
