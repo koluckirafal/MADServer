@@ -73,7 +73,7 @@ class MADServer::Callbacks_ : public ServerAppHandler
             throw 4;
 
         std::vector<unsigned char> data(dataLen);
-        for (int i = 0; i < dataLen; i++)
+        for (size_t i = 0; i < dataLen; i++)
             data[i] = static_cast<unsigned char>(pData[i]);
 
         return (madserv_ref.*procpacket_ptr)(data, senderAddr, senderPort);
@@ -106,7 +106,7 @@ class MADServer::Impl_
         {
             THROW_DYNLOADEXCEPTION(2);
         }
-        int refs = 0;
+        //  int refs = 0;
         DeleteServer_ = (DeleteServerFn)(dlsym(server_dll_, "DeleteServer"));
         if (DeleteServer_ == 0)
         {
@@ -238,7 +238,6 @@ std::string MADServer::GetGameVar(const std::string key, std::string init_value)
 
 int MADServer::GetGameVar(const std::string key, int init_value)
 {
-    HCONSOLEVAR var_handle;
     std::string value;
 
     value = IntToString(init_value);
@@ -250,7 +249,6 @@ int MADServer::GetGameVar(const std::string key, int init_value)
 
 float MADServer::GetGameVar(const std::string key, float init_value)
 {
-    HCONSOLEVAR var_handle;
     std::string value;
 
     value = FloatToString(init_value);

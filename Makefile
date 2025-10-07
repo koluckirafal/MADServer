@@ -1,7 +1,7 @@
 RM:=rm -f
 CC?=gcc
 CXX?=g++
-CONTAINER_TOOL:=$(shell command -v podman >/dev/null 2>&1 && echo podman || echo docker)
+CONTAINER_TOOL:=docker
 
 BUILD_REVISION?=$(shell git describe --tags --always --dirty 2> /dev/null)
 CONTAINER_IMAGE:=localhost/madserver-gcc2.95

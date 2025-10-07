@@ -77,7 +77,7 @@ float StringToFloat(std::string &str)
     return result;
 }
 
-std::string IntToString(int &value)
+std::string IntToString(int value)
 {
     std::stringstream ss;
 
@@ -86,7 +86,7 @@ std::string IntToString(int &value)
     return ss.str();
 }
 
-std::string FloatToString(float &value)
+std::string FloatToString(float value)
 {
     std::stringstream ss;
 
@@ -117,9 +117,10 @@ std::vector<std::string> GetLevels(MADServer &server)
 
 void SaveLevels(MADServer &server, std::vector<std::string> &levels)
 {
-    for (int i = 0; i < levels.size(); i++)
+    for (size_t i = 0; i < levels.size(); i++)
     {
-        server.SetGameVar("Level" + IntToString(i), levels[i]);
+        const std::string key = "Level" + IntToString(i);
+        server.SetGameVar(key, levels[i]);
     }
 
     server.SetGameVar("NumLevels", (int)(levels.size()));
@@ -131,8 +132,12 @@ std::vector<std::string> GetRezFiles(MADServer &server)
     std::vector<std::string> rez_files;
 
     count = server.GetGameVar("NumRezFiles", 0);
+    if (count < 0)
+    {
+        LOG_ERROR << "Negative number of REZ files?";
+    }
 
-    for (int i = 0; i < count; i++)
+    for (size_t i = 0; i < static_cast<size_t>(count); i++)
     {
         std::string rez_file = server.GetGameVar("RezFile" + IntToString(i), "");
 
@@ -147,7 +152,7 @@ std::vector<std::string> GetRezFiles(MADServer &server)
 
 void SaveRezList(MADServer &server, std::vector<std::string> &rez_files)
 {
-    for (int i = 0; i < rez_files.size(); i++)
+    for (size_t i = 0; i < rez_files.size(); i++)
     {
         server.SetGameVar("RezFile" + IntToString(i), rez_files[i]);
     }

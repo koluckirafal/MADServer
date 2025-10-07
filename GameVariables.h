@@ -46,7 +46,7 @@ class GameVariables
     float heal_scale;
     GameVariables()
         : game_type(kDeathmatch), end_type(kFrags), end_frags(25), end_time(10), net_service(0), max_players(16),
-          port(0), update_info(true), server_reg(true), use_gamespy(true), dash_go_info(false){};
+          update_info(true), server_reg(true), use_gamespy(true), dash_go_info(false), port(0){};
     void Load(MADServer &server);
     void Save(MADServer &server);
 };
