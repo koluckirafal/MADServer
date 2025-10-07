@@ -153,6 +153,7 @@ MADServer::MADServer()
     p_impl_ = new Impl_();
 
     // Create callbacks
+    // TODO: move callbacks outsite MADServer
     server_cb_ = new Callbacks_(*this, &MADServer::ProcessShellMessage, &MADServer::ProcessPacket);
 
     // Set callbacks

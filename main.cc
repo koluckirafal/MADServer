@@ -109,10 +109,17 @@ int main(int argc, char *argv[])
     // LoadRezStrings();
     std::vector<std::string> rez_files = GetRezFiles(server);
 
+    // TODO: NetStart_GoNoDialogs
 
     // END INIT
 
+    // TODO: CGameServDlg
+    // dlg.SetConfigFilename(configFile);
     server.Loop();
+
+	// Save config vars and file
+	game_vars.Save(server);
+	server.SaveConfigFile(config_path);
 
     return 0;
 }
