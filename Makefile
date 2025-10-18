@@ -19,8 +19,8 @@ CPPFLAGS:=-std=c++98 -I. -Ishogo_src/Misc -Ishogo_src/AppHeaders -g \
 	-Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough \
 	-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 -D_GLIBCXX_ASSERTIONS \
 	-fno-strict-aliasing
-LDFLAGS:=-g -Wl,-z,nodlopen -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -Wl,--as-needed
-LDLIBS:=-ldl
+LDFLAGS:=-g -Wl,-z,nodlopen -Wl,-z,relro
+LDLIBS:=-Wl,-Bstatic -lstdc++ -Wl,-Bdynamic -ldl -lm
 
 SRCS=main.cc Backend.cc Frontend.cc Logger.cc utils.cc GameVariables.cc
 HDRS=Backend.h Frontend.h Logger.h utils.h GameVariables.h consts.h build.h
@@ -37,7 +37,7 @@ build.h:
 	printf "#endif // _BUILD_H\n" >> $@
 
 madserv: $(OBJS) $(HDRS)
-	$(CXX) $(LDFLAGS) -o madserv $(OBJS) $(LDLIBS)
+	$(CC) $(LDFLAGS) -o madserv $(OBJS) $(LDLIBS)
 
 compile_commands.json:
 	bear -- make madserv
