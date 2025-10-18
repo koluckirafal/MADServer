@@ -22,8 +22,8 @@ CPPFLAGS:=-std=c++98 -I. -Ishogo_src/Misc -Ishogo_src/AppHeaders -g \
 LDFLAGS:=-g -Wl,-z,nodlopen -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -Wl,--as-needed
 LDLIBS:=-ldl
 
-SRCS=main.cc MADServer.cc Logger.cc Utils.cc GameVariables.cc
-HDRS=MADServer.h Logger.h Utils.h GameVariables.h consts.h build.h
+SRCS=main.cc Backend.cc Frontend.cc Logger.cc utils.cc GameVariables.cc
+HDRS=Backend.h Frontend.h Logger.h utils.h GameVariables.h consts.h build.h
 OBJS=$(subst .cc,.o,$(SRCS))
 
 .PHONY: all lint format docker-make docker-build depend clean distclean

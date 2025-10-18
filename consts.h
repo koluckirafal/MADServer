@@ -1,6 +1,8 @@
 #ifndef _CONSTS_H
 #define _CONSTS_H
 
+#define DEFAULT_CONFIG_FILE "~/.hyperion/Shogo/ShogoSrv.cfg"
+
 #define MAX_STRING_SIZE 128
 
 #define DEFAULTSERVERNAME "Shogo Server"

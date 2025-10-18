@@ -1,7 +1,7 @@
 #ifndef _GAMEVARIABLES_H
 #define _GAMEVARIABLES_H
 
-#include "MADServer.h"
+#include "Backend.h"
 
 enum GameType
 {
@@ -46,9 +46,9 @@ class GameVariables
     float heal_scale;
     GameVariables()
         : game_type(kDeathmatch), end_type(kFrags), end_frags(25), end_time(10), net_service(0), max_players(16),
-          update_info(true), server_reg(true), use_gamespy(true), dash_go_info(false), port(0){};
-    void Load(MADServer &server);
-    void Save(MADServer &server);
+          update_info(true), server_reg(true), use_gamespy(true), dash_go_info(false), port(0) {};
+    void Load(Backend &server);
+    void Save(Backend &server);
 };
 
 #endif // _GAMEVARIABLES_H

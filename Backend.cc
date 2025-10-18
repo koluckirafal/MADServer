@@ -5,11 +5,11 @@
 #include <string>
 #include <vector>
 
+#include "Backend.h"
 #include "Logger.h"
-#include "MADServer.h"
-#include "Utils.h"
 #include "consts.h"
 #include "server_interface.h"
+#include "utils.h"
 
 DGUID GAMEGUID = {/* 87EEDE80-0ED4-11D2-BA96-006008904776 */
                   0x87eede80, 0xed4, 0x11d2, 0xba, 0x96, 0x0, 0x60, 0x8, 0x90, 0x47, 0x76};
@@ -20,23 +20,23 @@ DGUID GAMEGUID = {/* 87EEDE80-0ED4-11D2-BA96-006008904776 */
         throw num;                                                                                                     \
     }
 
-#define SHELLMESSAGEPTR typedef unsigned long (MADServer::*ShellMessagePtr)(std::string & msg)
+#define SHELLMESSAGEPTR typedef unsigned long (Backend::*ShellMessagePtr)(std::string & msg)
 #define PROCESSPACKETPTR                                                                                               \
-    typedef unsigned long (MADServer::*ProcessPacketPtr)(std::vector<unsigned char> & data, unsigned char src_addr[4], \
-                                                         unsigned short src_port)
+    typedef unsigned long (Backend::*ProcessPacketPtr)(std::vector<unsigned char> & data, unsigned char src_addr[4],   \
+                                                       unsigned short src_port)
 
 // Server callbacks
-class MADServer::Callbacks_ : public ServerAppHandler
+class Backend::Callbacks_ : public ServerAppHandler
 {
   private:
-    MADServer &madserv_ref;
+    Backend &madserv_ref;
     SHELLMESSAGEPTR;
     PROCESSPACKETPTR;
     ShellMessagePtr smsg_ptr;
     ProcessPacketPtr procpacket_ptr;
 
   public:
-    Callbacks_(MADServer &madserv, ShellMessagePtr smsg, ProcessPacketPtr procpacket)
+    Callbacks_(Backend &madserv, ShellMessagePtr smsg, ProcessPacketPtr procpacket)
         : madserv_ref(madserv), smsg_ptr(smsg), procpacket_ptr(procpacket)
     {
     }
@@ -81,7 +81,7 @@ class MADServer::Callbacks_ : public ServerAppHandler
 };
 
 // Implementation - contains platform-specific server.dll interfacing
-class MADServer::Impl_
+class Backend::Impl_
 {
   private:
     void *server_dll_;
@@ -147,20 +147,20 @@ class MADServer::Impl_
     };
 };
 
-MADServer::MADServer()
+Backend::Backend()
 {
     // Create server implementation
     p_impl_ = new Impl_();
 
     // Create callbacks
-    // TODO: move callbacks outsite MADServer
-    server_cb_ = new Callbacks_(*this, &MADServer::ProcessShellMessage, &MADServer::ProcessPacket);
+    // TODO: move callbacks outsite Backend
+    server_cb_ = new Callbacks_(*this, &Backend::ProcessShellMessage, &Backend::ProcessPacket);
 
     // Set callbacks
     p_impl_->GetServerManager()->SetAppHandler(server_cb_);
 }
 
-MADServer::~MADServer()
+Backend::~Backend()
 {
     // Destroy server implementation first,
     // because server.dll will use callback to announce its departure
@@ -168,42 +168,36 @@ MADServer::~MADServer()
     delete server_cb_;
 }
 
-unsigned long MADServer::ProcessShellMessage(std::string &msg)
+unsigned long Backend::ProcessShellMessage(std::string &msg)
 {
     // TODO: Implement processing shell messages (GameServDlg.cpp:944)
     return 0;
 }
 
-unsigned long MADServer::ProcessPacket(std::vector<unsigned char> &data, unsigned char src_addr[4],
-                                       unsigned short src_port)
+unsigned long Backend::ProcessPacket(std::vector<unsigned char> &data, unsigned char src_addr[4],
+                                     unsigned short src_port)
 {
     // TODO: Implement processing unknown packets for GameSpy support (GameServDlg.cpp:1394)
     return 0;
 }
 
-int MADServer::Loop(void)
-{
-    LOG_INFO << "This is supposed to be a main loop...";
-    return 0;
-}
-
-void MADServer::SetGameVar(const std::string key, std::string value)
+void Backend::SetGameVar(const std::string key, std::string value)
 {
     std::string command = "\"+" + key + "\" \"" + value + "\"";
     p_impl_->GetServerManager()->RunConsoleString((char *)command.c_str());
 }
 
-void MADServer::SetGameVar(const std::string key, float value)
+void Backend::SetGameVar(const std::string key, float value)
 {
     SetGameVar(key, FloatToString(value));
 }
 
-void MADServer::SetGameVar(const std::string key, int value)
+void Backend::SetGameVar(const std::string key, int value)
 {
     SetGameVar(key, IntToString(value));
 }
 
-std::string MADServer::GetGameVar(const std::string key, std::string init_value)
+std::string Backend::GetGameVar(const std::string key, std::string init_value)
 {
     HCONSOLEVAR var_handle;
     std::string value;
@@ -237,7 +231,7 @@ std::string MADServer::GetGameVar(const std::string key, std::string init_value)
     return value;
 }
 
-int MADServer::GetGameVar(const std::string key, int init_value)
+int Backend::GetGameVar(const std::string key, int init_value)
 {
     std::string value;
 
@@ -248,7 +242,7 @@ int MADServer::GetGameVar(const std::string key, int init_value)
     return StringToInt(value);
 }
 
-float MADServer::GetGameVar(const std::string key, float init_value)
+float Backend::GetGameVar(const std::string key, float init_value)
 {
     std::string value;
 
@@ -259,116 +253,116 @@ float MADServer::GetGameVar(const std::string key, float init_value)
     return StringToFloat(value);
 }
 
-// TODO: Wrap all ServerInterface functions in MADServer class
+// TODO: Wrap all ServerInterface functions in Backend class
 
-unsigned long MADServer::LoadConfigFile(std::string config_path)
+unsigned long Backend::LoadConfigFile(std::string config_path)
 {
     return p_impl_->GetServerManager()->LoadConfigFile((char *)(config_path.c_str()));
 }
 
-unsigned long MADServer::SaveConfigFile(std::string config_path)
+unsigned long Backend::SaveConfigFile(std::string config_path)
 {
     return p_impl_->GetServerManager()->SaveConfigFile((char *)(config_path.c_str()));
 }
 
-char MADServer::InitNetworking(void)
+char Backend::InitNetworking(void)
 {
     return p_impl_->GetServerManager()->InitNetworking(NULL, 0);
 }
 
 /*
 
-unsigned long MADServer::SendToServerShell(char *pInfo)
+unsigned long Backend::SendToServerShell(char *pInfo)
 {
     return p_impl_->GetServerManager()->
 }
 
-char MADServer::AddResources(char **pResources, DDWORD nResources)
+char Backend::AddResources(char **pResources, DDWORD nResources)
 {
     return p_impl_->GetServerManager()->
 }
 
-struct FileEntry_t* MADServer::GetFileList(char *pDirName)
+struct FileEntry_t* Backend::GetFileList(char *pDirName)
 {
     return p_impl_->GetServerManager()->
 }
 
-void MADServer::FreeFileList(struct FileEntry_t *pList)
+void Backend::FreeFileList(struct FileEntry_t *pList)
 {
     return p_impl_->GetServerManager()->
 }
 
-char MADServer::StartWorld(StartGameRequest *pRequest)
+char Backend::StartWorld(StartGameRequest *pRequest)
 {
     return p_impl_->GetServerManager()->
 }
 
-int	 MADServer::GetNumClients()
+int	 Backend::GetNumClients()
 {
     return p_impl_->GetServerManager()->
 }
 
-char MADServer::GetClientName(int index, char *pName, int maxChars)
+char Backend::GetClientName(int index, char *pName, int maxChars)
 {
     return p_impl_->GetServerManager()->
 }
 
-char MADServer::GetClientInfo(int index, ClientInfo* pInfo)
+char Backend::GetClientInfo(int index, ClientInfo* pInfo)
 {
     return p_impl_->GetServerManager()->
 }
 
-char MADServer::BootClient(DDWORD dwClientID)
+char Backend::BootClient(DDWORD dwClientID)
 {
     return p_impl_->GetServerManager()->
 }
 
-int MADServer::GetErrorCode()
+int Backend::GetErrorCode()
 {
     return p_impl_->GetServerManager()->
 }
 
-void MADServer::GetErrorString(char *pString, int maxLen)
+void Backend::GetErrorString(char *pString, int maxLen)
 {
     return p_impl_->GetServerManager()->
 }
 
-char MADServer::Update(long flags)
+char Backend::Update(long flags)
 {
     return p_impl_->GetServerManager()->
 }
 
-char MADServer::GetServiceList(NetService *&pListHead)
+char Backend::GetServiceList(NetService *&pListHead)
 {
     return p_impl_->GetServerManager()->
 }
 
-char MADServer::FreeServiceList(NetService *pListHead)
+char Backend::FreeServiceList(NetService *pListHead)
 {
     return p_impl_->GetServerManager()->
 }
 
-char MADServer::SelectService(HNETSERVICE hNetService)
+char Backend::SelectService(HNETSERVICE hNetService)
 {
     return p_impl_->GetServerManager()->
 }
 
-char MADServer::UpdateSessionName(const char* sName)
+char Backend::UpdateSessionName(const char* sName)
 {
     return p_impl_->GetServerManager()->
 }
 
-char MADServer::HostGame(NetHost* pHostInfo)
+char Backend::HostGame(NetHost* pHostInfo)
 {
     return p_impl_->GetServerManager()->
 }
 
-char MADServer::GetTcpIpAddress(char* sAddress, DDWORD dwBufferSize, unsigned short &hostPort)
+char Backend::GetTcpIpAddress(char* sAddress, DDWORD dwBufferSize, unsigned short &hostPort)
 {
     return p_impl_->GetServerManager()->
 }
 
-unsigned long MADServer::SendTo(const void *pData, DDWORD len, const char *sAddr, DDWORD port)
+unsigned long Backend::SendTo(const void *pData, DDWORD len, const char *sAddr, DDWORD port)
 {
     return p_impl_->GetServerManager()->
 }

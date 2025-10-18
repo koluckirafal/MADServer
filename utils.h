@@ -1,7 +1,7 @@
 #ifndef _UTILS_H
 #define _UTILS_H
 
-#include "MADServer.h"
+#include "Backend.h"
 #include <sstream>
 #include <string>
 #include <vector>
@@ -16,9 +16,9 @@ int StringToInt(std::string &str);
 float StringToFloat(std::string &str);
 std::string IntToString(int value);
 std::string FloatToString(float value);
-std::vector<std::string> GetLevels(MADServer &server);
-void SaveLevels(MADServer &server, std::vector<std::string> levels);
-std::vector<std::string> GetRezFiles(MADServer &server);
-void SaveRezFiles(MADServer &server, std::vector<std::string> rez_files);
+std::vector<std::string> GetLevels(Backend &server);
+void SaveLevels(Backend &server, std::vector<std::string> levels);
+std::vector<std::string> GetRezFiles(Backend &server);
+void SaveRezFiles(Backend &server, std::vector<std::string> rez_files);
 
 #endif // _UTILS_H

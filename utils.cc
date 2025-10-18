@@ -1,5 +1,5 @@
+#include "Backend.h"
 #include "Logger.h"
-#include "MADServer.h"
 #include "build.h"
 #include <string>
 #include <sys/stat.h>
@@ -95,7 +95,7 @@ std::string FloatToString(float value)
     return ss.str();
 }
 
-std::vector<std::string> GetLevels(MADServer &server)
+std::vector<std::string> GetLevels(Backend &server)
 {
     int count = 0;
     std::vector<std::string> levels;
@@ -115,7 +115,7 @@ std::vector<std::string> GetLevels(MADServer &server)
     return levels;
 }
 
-void SaveLevels(MADServer &server, std::vector<std::string> &levels)
+void SaveLevels(Backend &server, std::vector<std::string> &levels)
 {
     for (size_t i = 0; i < levels.size(); i++)
     {
@@ -126,7 +126,7 @@ void SaveLevels(MADServer &server, std::vector<std::string> &levels)
     server.SetGameVar("NumLevels", (int)(levels.size()));
 }
 
-std::vector<std::string> GetRezFiles(MADServer &server)
+std::vector<std::string> GetRezFiles(Backend &server)
 {
     int count = 0;
     std::vector<std::string> rez_files;
@@ -150,7 +150,7 @@ std::vector<std::string> GetRezFiles(MADServer &server)
     return rez_files;
 }
 
-void SaveRezList(MADServer &server, std::vector<std::string> &rez_files)
+void SaveRezList(Backend &server, std::vector<std::string> &rez_files)
 {
     for (size_t i = 0; i < rez_files.size(); i++)
     {

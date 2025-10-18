@@ -1,8 +1,8 @@
 #include "GameVariables.h"
+#include "Backend.h"
 #include "Logger.h"
-#include "MADServer.h"
 
-void GameVariables::Load(MADServer &server)
+void GameVariables::Load(Backend &server)
 {
     server_name = server.GetGameVar("ServerName", server_name);
     service_name = server.GetGameVar("ServiceName", service_name);
@@ -34,7 +34,7 @@ void GameVariables::Load(MADServer &server)
     heal_scale = server.GetGameVar("HealScale", heal_scale);
 }
 
-void GameVariables::Save(MADServer &server)
+void GameVariables::Save(Backend &server)
 {
     server.SetGameVar("ServerName", server_name);
     server.SetGameVar("ServiceName", service_name);

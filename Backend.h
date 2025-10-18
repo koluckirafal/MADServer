@@ -1,11 +1,11 @@
-#ifndef _MADSERVER_H
-#define _MADSERVER_H
+#ifndef _Backend_H
+#define _Backend_H
 
 #include <memory>
 #include <string>
 #include <vector>
 
-class MADServer
+class Backend
 {
   private:
     unsigned long ProcessShellMessage(std::string &msg);
@@ -16,9 +16,8 @@ class MADServer
     Callbacks_ *server_cb_;
 
   public:
-    MADServer();
-    ~MADServer();
-    int Loop(void);
+    Backend();
+    ~Backend();
     void SetGameVar(const std::string key, std::string value);
     void SetGameVar(const std::string key, float value);
     void SetGameVar(const std::string key, int value);
@@ -55,4 +54,4 @@ class MADServer
     */
 };
 
-#endif // _MADSERVER_H
+#endif // _Backend_H
