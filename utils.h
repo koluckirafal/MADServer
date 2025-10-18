@@ -2,6 +2,7 @@
 #define _UTILS_H
 
 #include "Backend.h"
+#include <cstddef>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -15,6 +16,7 @@ bool FindRezFiles(void);
 int StringToInt(std::string &str);
 float StringToFloat(std::string &str);
 std::string IntToString(int value);
+std::string IntToString(size_t value);
 std::string FloatToString(float value);
 std::vector<std::string> GetLevels(Backend &server);
 void SaveLevels(Backend &server, std::vector<std::string> levels);

@@ -86,6 +86,15 @@ std::string IntToString(int value)
     return ss.str();
 }
 
+std::string IntToString(size_t value)
+{
+    std::stringstream ss;
+
+    ss << value;
+
+    return ss.str();
+}
+
 std::string FloatToString(float value)
 {
     std::stringstream ss;

@@ -11,8 +11,10 @@
 #include "server_interface.h"
 #include "utils.h"
 
+// clang-format off
 DGUID GAMEGUID = {/* 87EEDE80-0ED4-11D2-BA96-006008904776 */
-                  0x87eede80, 0xed4, 0x11d2, 0xba, 0x96, 0x0, 0x60, 0x8, 0x90, 0x47, 0x76};
+                  0x87eede80, 0xed4, 0x11d2, {0xba, 0x96, 0x0, 0x60, 0x8, 0x90, 0x47, 0x76}};
+// clang-format on
 
 #define THROW_DYNLOADEXCEPTION(num)                                                                                    \
     {                                                                                                                  \
@@ -40,6 +42,8 @@ class Backend::Callbacks_ : public ServerAppHandler
         : madserv_ref(madserv), smsg_ptr(smsg), procpacket_ptr(procpacket)
     {
     }
+
+    virtual ~Callbacks_() {};
 
     DRESULT ShellMessageFn(char *pInfo)
     {

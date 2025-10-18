@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     bool only_print_version = false;
     std::string config_path = DEFAULT_CONFIG_FILE;
 
-    char c;
+    int c;
     while ((c = getopt(argc, argv, "c:v")) != -1)
     {
         switch (c)

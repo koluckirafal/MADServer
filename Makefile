@@ -43,7 +43,7 @@ compile_commands.json:
 	bear -- make madserv
 
 lint: compile_commands.json
-	clang-tidy $(SRCS)
+	clang-tidy --extra-arg=-Wc++98-compat $(SRCS)
 
 format:
 	clang-format -style=microsoft -i $(SRCS) $(HDRS)
