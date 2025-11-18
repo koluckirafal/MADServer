@@ -3,16 +3,18 @@
 #include <unistd.h>
 
 #include "Backend.h"
+#include "EventQueue.h"
 #include "GameVariables.h"
 #include "Logger.h"
 #include "consts.h"
 #include "utils.h"
+#include <arpa/inet.h>
 // #include "build.h"
 
 #include "Frontend.h"
 #include "Logger.h"
 
-Frontend::Frontend(std::string config_path)
+Frontend::Frontend(std::string config_path) : server_(queue_)
 {
     config_path_ = config_path;
 
@@ -82,6 +84,8 @@ Frontend::Frontend(std::string config_path)
 
     // TODO: CGameServDlg
     // dlg.SetConfigFilename(configFile);
+
+    continue_loop_ = true;
 }
 
 Frontend::~Frontend()
@@ -91,11 +95,46 @@ Frontend::~Frontend()
     server_.SaveConfigFile(config_path_);
 }
 
+void Frontend::HandleShellMessage(std::string msg)
+{
+    // TODO: Implement processing shell messages (GameServDlg.cpp:944)
+    LOG_DEBUG << "Shell message: " << msg;
+}
+
+void Frontend::HandlePacket(const std::vector<unsigned char> data, const struct sockaddr_in sender)
+{
+    // TODO: Implement processing unknown packets for GameSpy support (GameServDlg.cpp:1394)
+    char ip[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &sender.sin_addr, ip, sizeof(ip));
+
+    LOG_DEBUG << "Unknown packet from " << ip << ':' << ntohs(sender.sin_port) << ", size: " << data.size();
+}
+
 int Frontend::Loop()
 {
-    LOG_INFO << "This is supposed to be a main loop...";
-    int end_frags = 0;
-    end_frags = server_.GetGameVar("EndFrags", end_frags);
-    LOG_INFO << "Number of players: " << end_frags;
+    while (true == continue_loop_)
+    {
+        Event ev = queue_.waitAndPop();
+
+        switch (ev.type)
+        {
+        case Event::NONE:
+            break;
+
+        case Event::SHELL_MESSAGE:
+            HandleShellMessage(ev.shell.text);
+            break;
+
+        case Event::UNKNOWN_PACKET:
+            HandlePacket(ev.packet.data, ev.packet.sender);
+            break;
+        }
+    }
+
     return 0;
+}
+
+void Frontend::Stop()
+{
+    continue_loop_ = false;
 }

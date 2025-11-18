@@ -1,22 +1,22 @@
-#ifndef _Backend_H
-#define _Backend_H
+#ifndef _BACKEND_H
+#define _BACKEND_H
 
 #include <memory>
 #include <string>
 #include <vector>
 
+#include "EventQueue.h"
+
 class Backend
 {
   private:
-    unsigned long ProcessShellMessage(std::string &msg);
-    unsigned long ProcessPacket(std::vector<unsigned char> &data, unsigned char src_addr[4], unsigned short src_port);
     class Impl_;
     Impl_ *p_impl_;
     class Callbacks_;
     Callbacks_ *server_cb_;
 
   public:
-    Backend();
+    Backend(EventQueue &queue);
     ~Backend();
     void SetGameVar(const std::string key, std::string value);
     void SetGameVar(const std::string key, float value);
@@ -54,4 +54,4 @@ class Backend
     */
 };
 
-#endif // _Backend_H
+#endif // _BACKEND_H

@@ -1,3 +1,4 @@
+#include <csignal>
 #include <cstdlib>
 #include <iostream>
 #include <unistd.h>
@@ -13,6 +14,17 @@ void usage(std::string progname)
     std::clog << "\t-e\t\tStop server after all players leave the game" << std::endl;
     std::clog << "\t-c config\tLoad config file (default: " << DEFAULT_CONFIG_FILE << ")" << std::endl;
     std::clog << "\t-v\t\tPrint the version and quit" << std::endl;
+}
+
+Frontend *g_frontend = 0;
+
+void handle_sigint(int sig)
+{
+    if (g_frontend)
+    {
+        LOG_INFO << "Ctrl+C caught. Stopping the server.";
+        g_frontend->Stop();
+    }
 }
 
 int main(int argc, char *argv[])
@@ -43,6 +55,9 @@ int main(int argc, char *argv[])
         return 0;
 
     Frontend frontend(config_path);
+
+    g_frontend = &frontend;
+    std::signal(SIGINT, handle_sigint);
 
     frontend.Loop();
 

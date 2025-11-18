@@ -23,7 +23,7 @@ LDFLAGS:=-g -Wl,-z,nodlopen -Wl,-z,relro
 LDLIBS:=-Wl,-Bstatic -lstdc++ -Wl,-Bdynamic -ldl -lm
 
 SRCS=main.cc Backend.cc Frontend.cc Logger.cc utils.cc GameVariables.cc
-HDRS=Backend.h Frontend.h Logger.h utils.h GameVariables.h consts.h build.h
+HDRS=Backend.h Frontend.h Logger.h Event.h EventQueue.h utils.h GameVariables.h consts.h build.h
 OBJS=$(subst .cc,.o,$(SRCS))
 
 .PHONY: all lint format docker-make docker-build depend clean distclean

@@ -1,11 +1,14 @@
+#include <cstring>
 #include <dlfcn.h>
 #include <errno.h>
 #include <iostream>
 #include <memory>
+#include <netinet/in.h>
 #include <string>
 #include <vector>
 
 #include "Backend.h"
+#include "EventQueue.h"
 #include "Logger.h"
 #include "consts.h"
 #include "server_interface.h"
@@ -31,36 +34,35 @@ DGUID GAMEGUID = {/* 87EEDE80-0ED4-11D2-BA96-006008904776 */
 class Backend::Callbacks_ : public ServerAppHandler
 {
   private:
-    Backend &madserv_ref;
-    SHELLMESSAGEPTR;
-    PROCESSPACKETPTR;
-    ShellMessagePtr smsg_ptr;
-    ProcessPacketPtr procpacket_ptr;
+    EventQueue &queue_;
 
   public:
-    Callbacks_(Backend &madserv, ShellMessagePtr smsg, ProcessPacketPtr procpacket)
-        : madserv_ref(madserv), smsg_ptr(smsg), procpacket_ptr(procpacket)
+    Callbacks_(EventQueue &queue) : queue_(queue)
     {
     }
 
-    virtual ~Callbacks_() {};
+    virtual ~Callbacks_()
+    {
+    }
 
     DRESULT ShellMessageFn(char *pInfo)
     {
         if (pInfo == 0)
             throw 1;
 
-        std::string shell_msg(pInfo);
+        queue_.push(Event::MakeShell(std::string(pInfo)));
 
-        return (madserv_ref.*smsg_ptr)(shell_msg);
+        return LT_OK;
     }
 
     DRESULT ConsoleOutputFn(char *pMsg)
     {
         if (pMsg == 0)
             throw 2;
+
         LOG_INFO << "server.dll: " << pMsg;
-        return 0;
+
+        return LT_OK;
     }
 
     DRESULT OutOfMemory()
@@ -68,7 +70,7 @@ class Backend::Callbacks_ : public ServerAppHandler
         LOG_FATAL << "server.dll: Memory exhausted, exiting immediately!";
         exit(ENOMEM);
 
-        return 1;
+        return LT_OK;
     }
 
     DRESULT ProcessPacket(char *pData, DDWORD dataLen, DBYTE senderAddr[4], D_WORD senderPort)
@@ -76,11 +78,30 @@ class Backend::Callbacks_ : public ServerAppHandler
         if (pData == 0)
             throw 4;
 
-        std::vector<unsigned char> data(dataLen);
-        for (size_t i = 0; i < dataLen; i++)
-            data[i] = static_cast<unsigned char>(pData[i]);
+        // Copy packet contents to vector
+        std::vector<unsigned char> vec;
+        vec.reserve(dataLen);
+        for (DDWORD i = 0; i < dataLen; ++i)
+            vec.push_back(static_cast<unsigned char>(pData[i]));
 
-        return (madserv_ref.*procpacket_ptr)(data, senderAddr, senderPort);
+        // Prepare sockaddr_in
+        struct sockaddr_in sender;
+        std::memset(&sender, 0, sizeof(sender));
+
+        sender.sin_family = AF_INET;
+        sender.sin_port = htons(senderPort); // convert to network byte order
+
+        // Copy IPv4 octets
+        unsigned char *a = reinterpret_cast<unsigned char *>(&sender.sin_addr.s_addr);
+        a[0] = senderAddr[0];
+        a[1] = senderAddr[1];
+        a[2] = senderAddr[2];
+        a[3] = senderAddr[3];
+
+        // Push event to the queue
+        queue_.push(Event::MakePacket(vec, sender));
+
+        return LT_OK;
     }
 };
 
@@ -130,6 +151,7 @@ class Backend::Impl_
 
     ~Impl_()
     {
+        LOG_DEBUG << "Backend::~Impl_";
         DeleteServer_();
         server_mgr_ = 0;
 
@@ -151,14 +173,13 @@ class Backend::Impl_
     };
 };
 
-Backend::Backend()
+Backend::Backend(EventQueue &queue)
 {
     // Create server implementation
     p_impl_ = new Impl_();
 
     // Create callbacks
-    // TODO: move callbacks outsite Backend
-    server_cb_ = new Callbacks_(*this, &Backend::ProcessShellMessage, &Backend::ProcessPacket);
+    server_cb_ = new Callbacks_(queue);
 
     // Set callbacks
     p_impl_->GetServerManager()->SetAppHandler(server_cb_);
@@ -166,23 +187,11 @@ Backend::Backend()
 
 Backend::~Backend()
 {
+    LOG_DEBUG << "~Backend";
     // Destroy server implementation first,
     // because server.dll will use callback to announce its departure
     delete p_impl_;
     delete server_cb_;
-}
-
-unsigned long Backend::ProcessShellMessage(std::string &msg)
-{
-    // TODO: Implement processing shell messages (GameServDlg.cpp:944)
-    return 0;
-}
-
-unsigned long Backend::ProcessPacket(std::vector<unsigned char> &data, unsigned char src_addr[4],
-                                     unsigned short src_port)
-{
-    // TODO: Implement processing unknown packets for GameSpy support (GameServDlg.cpp:1394)
-    return 0;
 }
 
 void Backend::SetGameVar(const std::string key, std::string value)
